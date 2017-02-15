@@ -19,7 +19,7 @@ npm i
 # prod
 npm run app
 
-# dev
+# dev - watches for file changes
 npm run app -- --dev
 # OR
 npm run app -- -d
