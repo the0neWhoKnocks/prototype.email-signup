@@ -1,0 +1,35 @@
+doctype html
+html(lang='en-US')
+  head
+    title Email Signup
+    
+    link(rel='stylesheet' type='text/css' href='/css/vendor/pickmeup.css')
+    link(rel='stylesheet' type='text/css' href='/css/app.css')
+    script(language='javascript' type='text/javascript' src='/js/vendor/pickmeup.min.js')
+    script(language='javascript' type='text/javascript' src='/js/app.js')
+
+  body
+    div(class='email-signup')
+      button(type='button' class='email-signup__cta js-emailSignupCTA' title='Click to open email signup') Email Signup
+      div(class='email-signup__modal-mask is--hidden js-emailSignupModalMask' title='Click to close')
+      form(class='email-signup__modal is--hidden js-emailSignupModal')
+        div(class='email-signup__input-container')
+          label(class='email-signup__input-label is--required') Email
+          input(type='email' name='email' class='email-signup__input' required)
+        
+        div(class='email-signup__input-container')
+          label(class='email-signup__input-label is--required') Date of Birth
+          input(type='text' name='dob' class='email-signup__input js-dobInput' required)
+        
+        div(class='email-signup__input-container')
+          label(class='email-signup__input-label is--required') Gender
+          input(type='radio' name='gender' value='male' id='genderMale' required)
+          label(for='genderMale') Male
+          input(type='radio' name='gender' value='female' id='genderFemale' required)
+          label(for='genderFemale') Female
+        
+        button(type='submit' class='email-signup__submit-btn js-emailSignupSubmitBtn') Submit
+      
+    if( dev )
+      script(id='__bs_script__').
+        document.write("<script async src='http://HOST:8082/browser-sync/browser-sync-client.js?v=2.18.7'><\/script>".replace("HOST", location.hostname))
