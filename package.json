@@ -1,0 +1,37 @@
+{
+  "name": "prototype.email-signup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "engines": {
+    "node": ">=4.5.0"
+  },
+  "engineStrict": true,
+  "scripts": {
+    "app": "node app init",
+    "postinstall": "bash ./.bin/npm-postinstall.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the0neWhoKnocks/prototype.email-signup.git"
+  },
+  "author": "Trevor Lemon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/the0neWhoKnocks/prototype.email-signup/issues"
+  },
+  "homepage": "https://github.com/the0neWhoKnocks/prototype.email-signup#readme",
+  "devDependencies": {
+    "browser-sync": "^2.18.7",
+    "cli-color": "^1.1.0",
+    "express": "^4.14.1",
+    "minimist": "^1.2.0",
+    "opn": "^4.0.2",
+    "portscanner": "^2.1.1"
+  },
+  "dependencies": {
+    "pickmeup": "^3.0.8",
+    "pug": "^2.0.0-beta11"
+  }
+}
