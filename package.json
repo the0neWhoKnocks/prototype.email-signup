@@ -6,9 +6,9 @@
   "engines": {
     "node": ">=4.5.0"
   },
-  "engineStrict": true,
+  "engine-strict": true,
   "scripts": {
-    "app": "node app init",
+    "app": "node server init",
     "postinstall": "bash ./.bin/npm-postinstall.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -31,6 +31,8 @@
     "portscanner": "^2.1.1"
   },
   "dependencies": {
+    "body-parser": "^1.16.1",
+    "firebase": "^3.6.9",
     "pickmeup": "^3.0.8",
     "pug": "^2.0.0-beta11"
   }

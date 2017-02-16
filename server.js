@@ -5,6 +5,9 @@ var browserSync = require('browser-sync');
 var opn = require('opn');
 var portscanner = require('portscanner');
 var flags = require('minimist')(process.argv.slice(2));
+var bodyParser = require('body-parser');
+var database = require('./dev/database.js');
+var endpoints = require('./dev/endpoints.js');
 
 // =============================================================================
 
@@ -48,6 +51,11 @@ var app = {
     this.server = express();
     // doc root is `public`
     this.server.use(express.static(conf.paths.PUBLIC));
+    // allows for reading POST data
+    this.server.use(bodyParser.json());   // to support JSON-encoded bodies
+    this.server.use(bodyParser.urlencoded({ // to support URL-encoded bodies
+      extended: true
+    })); 
     // setup templating engine (needed so browsersync can be loaded in dev)
     this.server.engine('pug', require('pug').__express);
     this.server.set('view engine', 'pug');
@@ -60,7 +68,43 @@ var app = {
   setupRoutes: function(){
     this.server.get('/', function(req, res){
       res.render('index', { 
-        dev: flags.dev
+        dev: flags.dev,
+        appData: {
+          endpoints: endpoints
+        }
+      });
+    });
+    
+    this.server.post(endpoints.SAVE_EMAIL, function(req, res){
+      var data = req.body;
+      var emailHash = new Buffer(data.email).toString('base64'); // decode new Buffer(b64Encoded, 'base64').toString()
+      var child = database.ref.child(`emails/${emailHash}`);
+      
+      // check if email already exists
+      child.once('value', function(snapshot){
+        // email doesn't exist
+        if( !snapshot.val() ){
+          child.set({
+            dob: data.dob,
+            gender: data.gender
+          }, function(err){
+            if( err ){
+              res.status(500);
+              res.send({ error: err });
+            }
+            
+            res.json({ 
+              msg: `'${data.email}' was added.`,
+              status: 200
+            });
+          });
+        }else{
+          res.status(409);
+          res.json({ 
+            msg: `'${data.email}' already exists.`,
+            status: 409
+          });
+        }
       });
     });
   },

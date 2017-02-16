@@ -31,6 +31,7 @@ button,
 }
 
 .email-signup__modal {
+  width: 12em;
   padding: 1em;
   border: solid 1px #666;
   border-radius: 0.5em;
@@ -68,12 +69,29 @@ button,
   display: block;
 }
 
+.email-signup__btn-container {
+  margin-top: 1em;
+}
+
+.email-signup__resp-msg {
+  font-family: monospace;
+  text-align: center;
+  padding: 0.25em;
+  margin: 0.25em 0;
+  background: #eee;
+}
+.email-signup__resp-msg.has--error {
+  background: #ff9e9e;
+}
+.email-signup__resp-msg.was--successful {
+  background: #78f9a1;
+}
+
 .email-signup__submit-btn {
   width: 100%;
   padding: 0.25em 0.5em;
   border: solid 1px #666;
   border-radius: 0.15em;
-  margin-top: 1em;
   background: #eee;
   cursor: pointer;
   display: block;
