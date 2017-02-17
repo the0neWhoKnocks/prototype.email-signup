@@ -1,13 +1,15 @@
 var path = require('path');
+var execFile = require('child_process').execFile;
 var express = require('express');
 var color = require('cli-color');
 var browserSync = require('browser-sync');
-var opn = require('opn');
 var portscanner = require('portscanner');
 var flags = require('minimist')(process.argv.slice(2));
 var bodyParser = require('body-parser');
+
 var database = require('./dev/database.js');
 var endpoints = require('./dev/endpoints.js');
+var indexTemplate = require('./public/views/index.js');
 
 // =============================================================================
 
@@ -56,10 +58,6 @@ var app = {
     this.server.use(bodyParser.urlencoded({ // to support URL-encoded bodies
       extended: true
     })); 
-    // setup templating engine (needed so browsersync can be loaded in dev)
-    this.server.engine('pug', require('pug').__express);
-    this.server.set('view engine', 'pug');
-    this.server.set('views', './public/views/');
     // bind server routes
     this.setupRoutes();
     this.addServerListeners();
@@ -67,12 +65,12 @@ var app = {
   
   setupRoutes: function(){
     this.server.get('/', function(req, res){
-      res.render('index', { 
+      res.send(indexTemplate({
         dev: flags.dev,
         appData: {
           endpoints: endpoints
         }
-      });
+      }));
     });
     
     this.server.post(endpoints.SAVE_EMAIL, function(req, res){
@@ -136,9 +134,11 @@ var app = {
     // let the user know the server is up and ready
     console.log(`\n${color.green.bold('[SERVER]')} Running at ${data.url} \n`);
     
-    opn(data.url, {
-      app: [CHROME, '--incognito'],
-      wait: false // no need to wait for app to close
+    this.browserProcess = execFile(CHROME, ['--incognito', data.url], function(error, stdout, stderr){
+        if (error) {
+          console.error('stderr', stderr);
+          throw error;
+        }
     });
   },
   
@@ -157,13 +157,12 @@ var app = {
         notify: false, // don't show the BS message in the browser
         port: conf.PORT,
         url: url
-      }, _self.openBrowser.bind(null, {
+      }, _self.openBrowser.bind(_self, {
         url: url
       }));
     });
   }
 };
-
 
 module.exports = app;
 var args = process.argv;
