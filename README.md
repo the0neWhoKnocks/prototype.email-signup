@@ -29,12 +29,12 @@ npm i
 
 ```sh
 # prod
-npm run app
+npm start
 
 # dev - watches for file changes
-npm run app -- --dev
+npm start -- --dev
 # OR
-npm run app -- -d
+npm start -- -d
 ```
 
 ---

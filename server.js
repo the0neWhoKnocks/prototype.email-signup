@@ -132,9 +132,11 @@ var app = {
   
   openBrowser: function(data){
     // let the user know the server is up and ready
-    console.log(`\n${color.green.bold('[SERVER]')} Running at ${data.url} \n`);
+    var msg = `${color.green.bold('[ SERVER ]')} Running at ${color.blue.bold(data.url)}`;
+    if( flags.dev ) msg += `\n${color.green.bold('[ WATCHING ]')} For changes`;
+    console.log(`${msg} \n`);
     
-    this.browserProcess = execFile(CHROME, ['--incognito', data.url], function(error, stdout, stderr){
+    this.browserProcess = execFile(CHROME, `--incognito ${data.url}`.split(' '), function(error, stdout, stderr){
         if (error) {
           console.error('stderr', stderr);
           throw error;

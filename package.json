@@ -8,7 +8,7 @@
   },
   "engine-strict": true,
   "scripts": {
-    "app": "node server init",
+    "start": "node server init",
     "postinstall": "bash ./.bin/npm-postinstall.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
