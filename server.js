@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 
 var database = require('./dev/database.js');
 var endpoints = require('./dev/endpoints.js');
+var utils = require('./dev/utils.js');
 var indexTemplate = require('./public/views/index.js');
 
 // =============================================================================
@@ -30,7 +31,9 @@ for(var key in flags){
 var conf = {
   PORT: 8081,
   paths: {
-    PUBLIC: path.resolve(__dirname +'/public')
+    PUBLIC: path.resolve(`${__dirname}/public`),
+    COMPILED_TAGS: path.resolve(`${__dirname}/public/js/tags`),
+    SOURCE_TAGS: path.resolve(`${__dirname}/dev/tags`)
   }
 };
 var OS = function(){
@@ -148,18 +151,28 @@ var app = {
     this.server.listen(conf.PORT, function(){  
       var url = 'http://localhost:'+ conf.PORT +'/';
       
-      browserSync.init({
-        browser: CHROME,
-        files: [ // watch these files
-          conf.paths.PUBLIC
-        ],
-        logLevel: 'silent', // prevent snippet message
-        notify: false, // don't show the BS message in the browser
-        port: conf.PORT,
-        url: url
-      }, _self.openBrowser.bind(_self, {
-        url: url
-      }));
+      utils.compileRiotTags({
+        paths: {
+          bundle: false,
+          sourceTags: conf.paths.SOURCE_TAGS,
+          compiledTags: conf.paths.COMPILED_TAGS
+        }
+      }, function(err){
+        if( err ) throw err;
+        
+        browserSync.init({
+          browser: CHROME,
+          files: [ // watch these files
+            conf.paths.PUBLIC
+          ],
+          logLevel: 'silent', // prevent snippet message
+          notify: false, // don't show the BS message in the browser
+          port: conf.PORT,
+          url: url
+        }, _self.openBrowser.bind(_self, {
+          url: url
+        }));
+      });
     });
   }
 };
