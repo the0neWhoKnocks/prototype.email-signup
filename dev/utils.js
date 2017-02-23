@@ -12,7 +12,7 @@ module.exports = {
    * @param {function} callback - Will be called once the command has completed/failed.
    */
   compileRiotTags: function(opts, callback){
-    var cmd;
+    var config, cmdArgs;
     
     // compile tags for client-side viewing
     console.log(`${color.green.bold('[COMPILING]')} Riot tags for client-side rendering.`);
@@ -26,11 +26,13 @@ module.exports = {
       return;
     }
     
-    cmd = ( !opts.bundle )
-      ? `riot ${opts.paths.sourceTags}/ ${opts.paths.compiledTags}/`
-      : `riot ${opts.paths.sourceTags}/ ${opts.paths.compiledTags}/tags.js`;
+    if( opts.paths.config ) config = `--config ${opts.paths.config}`;
     
-    exec(cmd, function(error, stdout, stderr){
+    cmdArgs = ( !opts.bundle )
+      ? `${opts.paths.sourceTags}/ ${opts.paths.compiledTags}/`
+      : `${opts.paths.sourceTags}/ ${opts.paths.compiledTags}/tags.js`;
+    
+    exec(`riot ${config} ${cmdArgs}`, function(error, stdout, stderr){
       if( error ) throw Error(error);
       
       var i;
@@ -38,8 +40,15 @@ module.exports = {
       lines.pop(); // last item is just a new line.
       
       for(i=0; i<lines.length; i++){
-        var line = lines[i].split(' -> ');
-        lines[i] = '  '+ path.basename(line[0]).replace('.tag', '') +' '+ color.cyan('➜') +' '+ path.basename(line[1]);
+        var line = lines[i];
+        
+        if( line.indexOf('->') > -1 ){
+          line = line.split(' -> ');
+          lines[i] = '  '+ path.basename(line[0]).replace('.tag', '') +' '+ color.cyan('➜') +' '+ path.basename(line[1]);
+        }else{
+          // handles errors or messages from the riot config
+          lines[i] = `  [?] ${line}`;
+        }
       }
       
       console.log(lines.join("\n"));

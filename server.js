@@ -7,6 +7,7 @@ var portscanner = require('portscanner');
 var flags = require('minimist')(process.argv.slice(2));
 var bodyParser = require('body-parser');
 
+var appConfig = require('./conf.app.js');
 var database = require('./dev/database.js');
 var endpoints = require('./dev/endpoints.js');
 var utils = require('./dev/utils.js');
@@ -28,14 +29,6 @@ for(var key in flags){
 
 // =============================================================================
 
-var conf = {
-  PORT: 8081,
-  paths: {
-    PUBLIC: path.resolve(`${__dirname}/public`),
-    COMPILED_TAGS: path.resolve(`${__dirname}/public/js/tags`),
-    SOURCE_TAGS: path.resolve(`${__dirname}/dev/tags`)
-  }
-};
 var OS = function(){
   var platform = process.platform;
   
@@ -55,7 +48,7 @@ var app = {
   init: function(){
     this.server = express();
     // doc root is `public`
-    this.server.use(express.static(conf.paths.PUBLIC));
+    this.server.use(express.static(appConfig.paths.PUBLIC));
     // allows for reading POST data
     this.server.use(bodyParser.json());   // to support JSON-encoded bodies
     this.server.use(bodyParser.urlencoded({ // to support URL-encoded bodies
@@ -114,14 +107,14 @@ var app = {
     var _self = this;
     
     // Dynamically sets an open port, if the default is in use.
-    portscanner.checkPortStatus(conf.PORT, '127.0.0.1', function(error, status){
+    portscanner.checkPortStatus(appConfig.PORT, '127.0.0.1', function(error, status){
       // Status is 'open' if currently in use or 'closed' if available
       switch(status){
         case 'open' : // port isn't available, so find one that is
-          portscanner.findAPortNotInUse(conf.PORT, conf.PORT+20, '127.0.0.1', function(error, openPort){
-            console.log(`${color.yellow.bold('[PORT]')} ${conf.PORT} in use, using ${openPort}`);
+          portscanner.findAPortNotInUse(appConfig.PORT, appConfig.PORT+20, '127.0.0.1', function(error, openPort){
+            console.log(`${color.yellow.bold('[PORT]')} ${appConfig.PORT} in use, using ${openPort}`);
 
-            conf.PORT = openPort;
+            appConfig.PORT = openPort;
             
             _self.startServer();
           });
@@ -148,14 +141,15 @@ var app = {
   startServer: function(){
     var _self = this;
     
-    this.server.listen(conf.PORT, function(){  
-      var url = 'http://localhost:'+ conf.PORT +'/';
+    this.server.listen(appConfig.PORT, function(){  
+      var url = 'http://localhost:'+ appConfig.PORT +'/';
       
       utils.compileRiotTags({
         paths: {
           bundle: false,
-          sourceTags: conf.paths.SOURCE_TAGS,
-          compiledTags: conf.paths.COMPILED_TAGS
+          config: `${appConfig.paths.ROOT}/conf.riot.js`,
+          sourceTags: appConfig.paths.SOURCE_TAGS,
+          compiledTags: appConfig.paths.COMPILED_TAGS
         }
       }, function(err){
         if( err ) throw err;
@@ -163,11 +157,11 @@ var app = {
         browserSync.init({
           browser: CHROME,
           files: [ // watch these files
-            conf.paths.PUBLIC
+            appConfig.paths.PUBLIC
           ],
           logLevel: 'silent', // prevent snippet message
           notify: false, // don't show the BS message in the browser
-          port: conf.PORT,
+          port: appConfig.PORT,
           url: url
         }, _self.openBrowser.bind(_self, {
           url: url
