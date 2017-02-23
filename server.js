@@ -1,8 +1,8 @@
 var path = require('path');
-var execFile = require('child_process').execFile;
 var express = require('express');
 var color = require('cli-color');
 var browserSync = require('browser-sync');
+var opn = require('opn');
 var portscanner = require('portscanner');
 var flags = require('minimist')(process.argv.slice(2));
 var bodyParser = require('body-parser');
@@ -136,11 +136,9 @@ var app = {
     if( flags.dev ) msg += `\n${color.green.bold('[ WATCHING ]')} For changes`;
     console.log(`${msg} \n`);
     
-    this.browserProcess = execFile(CHROME, `--incognito ${data.url}`.split(' '), function(error, stdout, stderr){
-        if (error) {
-          console.error('stderr', stderr);
-          throw error;
-        }
+    opn(data.url, {
+      app: [CHROME, '--incognito'],
+      wait: false // no need to wait for app to close
     });
   },
   
