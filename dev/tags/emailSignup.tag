@@ -28,7 +28,7 @@
     </form>
   </div>
   
-  <style scoped type="stylus">
+  <style scoped>
     :scope,
     input,
     button, 
@@ -168,7 +168,7 @@
   </style>
   
   <script>
-    var _self = this;
+    const _self = this;
     
     this.cssModifiers = {
       IS_HIDDEN: 'is--hidden',
@@ -181,13 +181,13 @@
       SUBMIT: 'submit'
     };
     
-    this.on('mount', function(){
+    this.handleMount = function(ev){
       if( appData.endpoints.SAVE_EMAIL ){
         _self.refs.emailSignupModal.action = appData.endpoints.SAVE_EMAIL;
       }
       
       _self.addListeners();
-    });
+    };
   
     this.addListeners = function(){
       this.refs.emailSignupCTA.addEventListener(this.events.CLICK, this.openModal.bind(this));
@@ -196,7 +196,7 @@
         format: 'Y-m-d',
         hide_on_select: true
       });
-    },
+    };
     
     this.openModal = function(ev){
       this.boundSubmitEmail = this.submitEmail.bind(this);
@@ -206,7 +206,7 @@
       this.refs.emailSignupModalMask.classList.remove(this.cssModifiers.IS_HIDDEN);
       this.refs.emailSignupModal.addEventListener(this.events.SUBMIT, this.boundSubmitEmail);
       this.refs.emailSignupModalMask.addEventListener(this.events.CLICK, this.boundCloseModal);
-    },
+    };
     
     this.closeModal = function(ev){
       this.refs.emailSignupModal.classList.add(this.cssModifiers.IS_HIDDEN);
@@ -229,20 +229,18 @@
       
       delete this.boundSubmitEmail;
       delete this.boundCloseModal;
-    },
+    };
     
     this.submitEmail = function(ev){
       ev.preventDefault();
       
-      var _self = this;
-      
       if( window.fetch ){
-        var form = ev.currentTarget;
-        var formData = window.utils.buildQuery(form);
-        var headers = new Headers({
+        const form = ev.currentTarget;
+        const formData = window.utils.buildQuery(form);
+        const headers = new Headers({
           'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
         });
-        var requestOpts = {
+        const requestOpts = {
           method: 'POST',
           headers: headers,
           body: formData
@@ -285,94 +283,9 @@
       }else{
         alert('Sorry `fetch` is unsupported in your browser');
       }
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /*
-     * As a note, `items` doesn't keep track of item order after
-     * sorting has occurred. For now it's just a mechanism to update
-     * the DOM.
-     */
-    this.items = [];
-    this.itemCount = 0;
-    
-    this.handleDragEnter = function(ev){
-      var el = ev.target;
-      
-      // only highlight when adding an item
-      if( ev.dataTransfer.effectAllowed != 'move' ){
-        el.classList.add('drop-it');
-      }
-      
-      return true;
     };
     
-    this.handleDragOver = function(ev){
-      ev.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
-    };
-
-    this.handleDragLeave = function(ev){
-      var el = ev.target;
-      
-      el.classList.remove('drop-it');  // this / e.target is previous target element.
-      
-      return true;
-    };
-    
-    this.handleDrop = function(ev){
-      var el = ev.target;
-      var itemData = ev.dataTransfer.getData('text/plain');
-      
-      el.classList.remove('drop-it');
-      
-      // Sorting triggers this, so verify the data is JSON
-      // before trying to parse.
-      if( /^\{/.test(itemData) ){
-        itemData = JSON.parse(itemData);
-        itemData.tag = itemData.itemType +'-item';
-        this.items.push(itemData);
-      }
-    };
-    
-    this.handleLoad = function(ev){
-      RiotControl.trigger('openModal', {
-        modalBody: '<input type="file" name="load" accept=".json">',
-        onSave: function(ev){
-          console.log('save');
-        }
-      });
-    };
-    
-    this.clearFormItems = function(ev){
-      this.items = [];
-    };
-    
-    this.on('updated', function(ev){
-      if( 
-        _self.items.length 
-        && _self.itemCount != _self.items.length
-      ){
-        RiotControl.trigger('formItemAdded', _self.items[_self.itemCount]);
-        _self.itemCount = _self.items.length;
-      }
-    });
+    // doesn't get hoisted so it has to be at the bottom
+    this.on('mount', this.handleMount);
   </script>
 </emailSignup>
