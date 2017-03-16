@@ -1,6 +1,7 @@
 var color = require('cli-color');
 var exec = require('child_process').exec;
 var path = require('path');
+var appConfig = require('../conf.app.js');
 
 var debounceTimeout;
 
@@ -15,7 +16,7 @@ module.exports = {
     var config, cmdArgs;
     
     // compile tags for client-side viewing
-    console.log(`${color.green.bold('[COMPILING]')} Riot tags for client-side rendering.`);
+    console.log(`${color.green.bold('[ COMPILING ]')} Riot tags for client-side rendering.`);
     
     if(
       !opts.paths
@@ -43,15 +44,19 @@ module.exports = {
         var line = lines[i];
         
         if( line.indexOf('->') > -1 ){
-          line = line.split(' -> ');
-          lines[i] = '  '+ path.basename(line[0]).replace('.tag', '') +' '+ color.cyan('➜') +' '+ path.basename(line[1]);
+          line = line.replace(/\\/g, '/').split(' -> ');
+          var srcPath = line[0].replace(appConfig.paths.ROOT.replace(/\\/g, '/'), '');
+          var outPath = line[1].replace(appConfig.paths.ROOT.replace(/\\/g, '/'), '');
+          var branch = ( i === lines.length-1 ) ? '└' : '├─';
+          
+          lines[i] = `  ${color.green.bold(branch)} ${ srcPath } ${ color.cyan('➜') } ${ outPath }`;
         }else{
           // handles errors or messages from the riot config
           lines[i] = `  [?] ${line}`;
         }
       }
       
-      console.log(lines.join("\n"));
+      console.log(`${ color.green.bold('──┬──────────') }\n${ lines.join("\n") }\n`);
       
       callback();
     });
