@@ -45,5 +45,12 @@ Entering data can be a bit tedious during testing so you can use the below
 bookmarklet to ease the pain.
 
 ```js
-javascript:(function(){ emailSignup.els.emailSignupModal.querySelector('[name="email"]').value = 'a@b.com'; emailSignup.els.emailSignupModal.querySelector('[name="dob"]').value = '1980-01-01'; emailSignup.els.emailSignupModal.querySelector('[name="gender"]').checked = true; })();
+javascript:(function(){ document.querySelector('[name="email"]').value = 'a@b.com'; document.querySelector('[name="dob"]').value = '1980-01-01'; document.querySelector('[name="gender"]').checked = true; })();
 ```
+
+---
+
+## Useful Links
+
+- http://riotjs.com/guide/
+- https://martinmuzatko.github.io/riot-cheatsheet/

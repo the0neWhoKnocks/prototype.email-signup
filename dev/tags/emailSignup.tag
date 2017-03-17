@@ -1,8 +1,24 @@
 <emailSignup>
   <div>
-    <button class="cta" ref="emailSignupCTA" type="button" title="Click to open email signup">Email Signup</button>
-    <div class="modal-mask is--hidden" ref="emailSignupModalMask" title="Click to close"></div>
-    <form class="modal is--hidden" ref="emailSignupModal" action="" method="POST">
+    <button 
+      class="cta" 
+      type="button" 
+      title="Click to open email signup"
+      onclick={ openModal }
+    >Email Signup</button>
+    <div 
+      if={ modalIsOpen }
+      class="modal-mask" 
+      title="Click to close"
+      onclick={ closeModal }
+    ></div>
+    <form 
+      if={ modalIsOpen }
+      class="modal" 
+      action={ ( appData.endpoints.SAVE_EMAIL ) ? appData.endpoints.SAVE_EMAIL : '' } 
+      method="POST"
+      onsubmit={ submitEmail }
+    >
       <div class="input-container">
         <label class="input-label is--required">Email</label>
         <input class="input" type="email" name="email" required>
@@ -22,8 +38,15 @@
       </div>
       
       <div class="btn-container">
-        <div class="resp-msg is--hidden" ref="emailSignupRespMsg"></div>
-        <button class="submit-btn" ref="emailSignupSubmitBtn" type="submit">Submit</button>
+        <div 
+          if={ serverResp.msg }
+          class={ 'resp-msg '+ (( serverResp.status === 200 ) ? cssModifiers.WAS_SUCCESSFUL : cssModifiers.HAS_ERROR) } 
+        >{ serverResp.msg }</div>
+        <button 
+          class={ 'submit-btn'+ (( hasSubmitted ) ? ` ${cssModifiers.HAS_SUBMITTED}` : '' ) } 
+          type="submit"
+          disabled={ hasSubmitted }
+        >Submit</button>
       </div>
     </form>
   </div>
@@ -180,17 +203,16 @@
       CLICK: 'click',
       SUBMIT: 'submit'
     };
+    this.modalIsOpen = false;
+    this.serverResp = {};
+    this.hasSubmitted = false;
     
-    this.handleMount = function(ev){
-      if( appData.endpoints.SAVE_EMAIL ){
-        _self.refs.emailSignupModal.action = appData.endpoints.SAVE_EMAIL;
-      }
+    this.handleMount = function(ev){};
+    
+    this.openModal = function(ev){
+      this.modalIsOpen = true;
+      this.update();
       
-      _self.addListeners();
-    };
-  
-    this.addListeners = function(){
-      this.refs.emailSignupCTA.addEventListener(this.events.CLICK, this.openModal.bind(this));
       pickmeup(this.refs.dobInput, {
         default_date: false,
         format: 'Y-m-d',
@@ -198,37 +220,9 @@
       });
     };
     
-    this.openModal = function(ev){
-      this.boundSubmitEmail = this.submitEmail.bind(this);
-      this.boundCloseModal = this.closeModal.bind(this);
-      
-      this.refs.emailSignupModal.classList.remove(this.cssModifiers.IS_HIDDEN);
-      this.refs.emailSignupModalMask.classList.remove(this.cssModifiers.IS_HIDDEN);
-      this.refs.emailSignupModal.addEventListener(this.events.SUBMIT, this.boundSubmitEmail);
-      this.refs.emailSignupModalMask.addEventListener(this.events.CLICK, this.boundCloseModal);
-    };
-    
     this.closeModal = function(ev){
-      this.refs.emailSignupModal.classList.add(this.cssModifiers.IS_HIDDEN);
-      this.refs.emailSignupModalMask.classList.add(this.cssModifiers.IS_HIDDEN);
-      this.refs.emailSignupModal.removeEventListener(this.events.SUBMIT, this.boundSubmitEmail);
-      this.refs.emailSignupModalMask.removeEventListener(this.events.CLICK, this.boundCloseModal);
-      
-      this.refs.emailSignupRespMsg.classList.add(this.cssModifiers.IS_HIDDEN);
-      this.refs.emailSignupRespMsg.innerHTML = '';
-      this.refs.emailSignupRespMsg.classList.remove(
-        this.cssModifiers.WAS_SUCCESSFUL,
-        this.cssModifiers.HAS_ERROR
-      );
-      
-      this.refs.emailSignupModal.querySelector('[name="email"]').value = '';
-      this.refs.emailSignupModal.querySelector('[name="dob"]').value = '';
-      this.refs.emailSignupModal.querySelectorAll('[name="gender"]').forEach(function(item){
-        item.checked = false;
-      }); 
-      
-      delete this.boundSubmitEmail;
-      delete this.boundCloseModal;
+      this.modalIsOpen = false;
+      this.update();
     };
     
     this.submitEmail = function(ev){
@@ -247,38 +241,41 @@
         };
         
         console.log('[ SUBMIT ] email info');
-        this.refs.emailSignupSubmitBtn.classList.add(this.cssModifiers.HAS_SUBMITTED);
-        this.refs.emailSignupSubmitBtn.disabled = true;
+        this.serverResp = {};
+        this.update();
         
         fetch(form.action, requestOpts)
         .then(function(resp){
-          if( status === 500 ) throw Error(resp.statusText);
+          if( resp.status === 500 ){
+            return {
+              msg: resp.statusText,
+              status: resp.status
+            };
+          }
           
           return resp.json();
         })
         .then(function(resp){
-          _self.refs.emailSignupSubmitBtn.classList.remove(_self.cssModifiers.HAS_SUBMITTED);
-          _self.refs.emailSignupSubmitBtn.disabled = false;
-          _self.refs.emailSignupRespMsg.classList.remove(_self.cssModifiers.IS_HIDDEN);
-          _self.refs.emailSignupRespMsg.innerHTML = resp.msg;
-          
           switch(resp.status){
             case 200 :
-              _self.refs.emailSignupRespMsg.classList.add(_self.cssModifiers.WAS_SUCCESSFUL);
               setTimeout(function(){          
                 _self.closeModal();
               }, 2000);
               break;
-            
-            default :
-              _self.refs.emailSignupRespMsg.classList.add(_self.cssModifiers.HAS_ERROR);
           }
+          
+          _self.hasSubmitted = false;
+          _self.serverResp = resp;
+          _self.update();
         })
         .catch(function(err){
           console.error(err);
-          _self.refs.emailSignupSubmitBtn.classList.remove(_self.cssModifiers.HAS_SUBMITTED);
-          _self.refs.emailSignupSubmitBtn.disabled = false;
-          _self.refs.emailSignupRespMsg.classList.add(_self.cssModifiers.HAS_ERROR);
+          _self.hasSubmitted = false;
+          _self.serverResp = {
+            msg: err,
+            status: 500
+          };
+          _self.update();
         });
       }else{
         alert('Sorry `fetch` is unsupported in your browser');
