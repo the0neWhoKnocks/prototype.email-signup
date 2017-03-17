@@ -143,6 +143,7 @@ var app = {
     
     this.server.listen(appConfig.PORT, function(){  
       var url = 'http://localhost:'+ appConfig.PORT +'/';
+      var firstRunComplete = false;
       
       utils.compileRiotTags({
         paths: {
@@ -154,19 +155,23 @@ var app = {
       }, function(err){
         if( err ) throw err;
         
-        browserSync.init({
-          browser: CHROME,
-          files: [ // watch these files
-            appConfig.paths.PUBLIC
-          ],
-          logLevel: 'silent', // prevent snippet message
-          notify: false, // don't show the BS message in the browser
-          port: appConfig.PORT,
-          url: url
-        }, _self.openBrowser.bind(_self, {
-          url: url
-        }));
-      });
+        if( !firstRunComplete ){
+          browserSync.init({
+            browser: CHROME,
+            files: [ // watch these files
+              appConfig.paths.PUBLIC
+            ],
+            logLevel: 'silent', // prevent snippet message
+            notify: false, // don't show the BS message in the browser
+            port: appConfig.PORT,
+            url: url
+          }, _self.openBrowser.bind(_self, {
+            url: url
+          }));
+          
+          firstRunComplete = true;
+        }        
+      }, flags.dev);
     });
   }
 };
