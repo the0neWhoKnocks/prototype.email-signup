@@ -28,13 +28,13 @@
     "express": "^4.14.1",
     "minimist": "^1.2.0",
     "opn": "^4.0.2",
-    "portscanner": "^2.1.1",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "portscanner": "^2.1.1"
   },
   "dependencies": {
     "body-parser": "^1.16.1",
     "firebase": "^3.6.9",
-    "pickmeup": "^3.0.8"
+    "pickmeup": "^3.0.8",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
   }
 }
