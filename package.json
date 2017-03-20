@@ -33,6 +33,7 @@
   "dependencies": {
     "body-parser": "^1.16.1",
     "firebase": "^3.6.9",
+    "mithril": "^1.0.1",
     "pickmeup": "^3.0.8"
   }
 }
